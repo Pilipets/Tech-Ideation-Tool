@@ -101,6 +101,14 @@ def chatgpt_sample():
 	ideas = ideas[0].split('\n\n')
 	print(ideas)
 	print()
+	
+	prompt = "Generate %d phrases related to '%s'" % (MAX_RESULTS, query)
+	ideas = generate_ideas(prompt)
+
+	assert len(ideas) == 1, ideas
+	ideas = ideas[0].split('\n\n')
+	print(ideas)
+	print()
 
 
 def hugging_face_sample():
