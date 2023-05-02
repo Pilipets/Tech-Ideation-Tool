@@ -6,58 +6,56 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHB
 #from ideation_tool import get_arxiv_articles, get_news, get_query_trends, get_related_phrases, get_patents
 
 import PySimpleGUI as sg
-# from get_arxiv_articles import get_arxiv_articles
-# from get_news import get_news
-# from get_google_trends import get_google_trends
-# from get_related_phrases import get_related_phrases
-# from get_patents import get_patents
 
-sg.theme("DefaultNoMoreNagging")
-
-# Define the layout
+# Define the layout of the window
 layout = [
-    [sg.Text("Enter a keyword or phrase: "), sg.InputText()],
-    [sg.Checkbox("Arxiv articles"), sg.Checkbox("News"), sg.Checkbox("Google trends"), sg.Checkbox("Related phrases"), sg.Checkbox("Patents")],
-    [sg.Button("Search"), sg.Button("Exit")],
-    [sg.Text("Search results: ")],
-    [sg.Multiline(size=(100, 20), key="-OUTPUT-")],
+    [sg.Text("Enter your query:"), sg.Input(key="-QUERY-"), sg.Button("Search")],
+    [sg.Checkbox("Arxiv articles", key="-ARXIV-"), sg.Checkbox("News", key="-NEWS-"), sg.Checkbox("Google trends", key="-GOOGLE-"), sg.Checkbox("Related phrases", key="-RELATED-"), sg.Checkbox("Patents", key="-PATENTS-")],
+    [sg.Text("Results:")],
+    [sg.Output(size=(120, 40), key="-OUTPUT-")],
 ]
 
 # Create the window
-window = sg.Window("Ideation Tool", layout)
+window = sg.Window("Ideation Tool", layout, size=(800, 600))
 
-# Start the event loop
+# Event loop
 while True:
     event, values = window.read()
-    if event == "Exit" or event == sg.WIN_CLOSED:
+
+    if event == sg.WINDOW_CLOSED:
         break
+
     if event == "Search":
-        search_term = values[0]
-        sources = [source for source in ["Arxiv articles", "News", "Google trends", "Related phrases", "Patents"] if values[source]]
-        results = []
-        # for source in sources:
-        #     if source == "Arxiv articles":
-        #         articles = get_arxiv_articles(search_term)
-        #         results.extend(articles)
-        #     elif source == "News":
-        #         news = get_news(search_term)
-        #         results.extend(news)
-        #     elif source == "Google trends":
-        #         trends = get_google_trends(search_term)
-        #         results.extend(trends)
-        #     elif source == "Related phrases":
-        #         related_phrases = get_related_phrases(search_term)
-        #         results.extend(related_phrases)
-        #     elif source == "Patents":
-        #         patents = get_patents(search_term)
-        #         results.extend(patents)
+        # Get the selected sources
+        sources = [source for source in ["Arxiv articles", "News", "Google trends", "Related phrases", "Patents"] if values.get(source)]
 
-        results = [{'key':'value', 'key2':'value2'}, {'KEY1':'VALUE1 OR VALUE2', 'KEY2':'VALUE2', 'KEY3':'VALUE3'}]
-
-        # Display the results
+        # Perform the searches and update the output
         output = ""
-        for i, result in enumerate(results):
-            output += f"{i+1}. {result}\n"
+        if "Arxiv articles" in sources:
+            # Get Arxiv articles for the query
+            articles = get_arxiv_articles(values["-QUERY-"])
+            output += "Arxiv articles:\n" + "\n".join(articles) + "\n\n"
+
+        if "News" in sources:
+            # Get news articles for the query
+            articles = get_news_articles(values["-QUERY-"])
+            output += "News articles:\n" + "\n".join(articles) + "\n\n"
+
+        if "Google trends" in sources:
+            # Get Google trends for the query
+            trends = get_query_trends(values["-QUERY-"])
+            output += "Google trends:\n" + str(trends) + "\n\n"
+
+        if "Related phrases" in sources:
+            # Get related phrases for the query
+            phrases = get_related_phrases(values["-QUERY-"])
+            output += "Related phrases:\n" + "\n".join(phrases) + "\n\n"
+
+        if "Patents" in sources:
+            # Get patents for the query
+            patents = get_patents(values["-QUERY-"])
+            output += "Patents:\n" + "\n".join(patents) + "\n\n"
+
         window["-OUTPUT-"].update(output)
 
 # Close the window
