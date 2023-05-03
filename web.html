@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Ideation Tool</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     body {
       background-color: #F0F0F0;
@@ -79,7 +80,7 @@
         <form @submit.prevent="search">
           <div class="form-row">
             <label for="query">Enter your query:</label>
-            <input type="text" id="query" v-model="query" placeholder="quantum" style="width: 70%;">
+            <input type="text" id="query" v-model="query" placeholder="quantum" style="width: 80%;">
             <button type="submit">Search</button>
           </div>
           <div class="checkbox-row">
@@ -113,43 +114,43 @@
             },
             selectedResult: null,
             results: [
-              {
-                type: 'arxiv',
-                main_info: 'Title of arxiv paper 1',
-                details: {
-                  author: 'John Doe',
-                  abstract: 'This is an abstract of arxiv paper 1.',
-                  link: 'https://arxiv.org/abs/2101.00001',
-                },
-              },
-              {
-                type: 'news',
-                main_info: 'Title of news article 1',
-                details: {
-                  author: 'Jane Smith',
-                  description: 'This is a description of news article 1.',
-                  url: 'https://example.com/news/article1',
-                },
-              },
+            //   {
+            //     type: 'arxiv',
+            //     main_info: 'Title of arxiv paper 1',
+            //     details: {
+            //       author: 'John Doe',
+            //       abstract: 'This is an abstract of arxiv paper 1.',
+            //       link: 'https://arxiv.org/abs/2101.00001',
+            //     },
+            //   },
+            //   {
+            //     type: 'news',
+            //     main_info: 'Title of news article 1',
+            //     details: {
+            //       author: 'Jane Smith',
+            //       description: 'This is a description of news article 1.',
+            //       url: 'https://example.com/news/article1',
+            //     },
+            //   },
             ],
           },
           methods: {
             search() {
-                // // Build query parameters
-                // const params = {
-                //     q: this.query,
-                //     arxiv: this.sources.arxiv,
-                //     news: this.sources.news,
-                // };
+                // Build query parameters
+                const params = {
+                    q: this.query,
+                    arxiv: this.sources.arxiv,
+                    news: this.sources.news,
+                };
 
-                // // Make API request
-                // axios.get('https://example.com/search', { params })
-                //     .then(response => {
-                //     this.results = response.data.results;
-                //     })
-                //     .catch(error => {
-                //     console.error(error);
-                //     });
+                // Make API request
+                axios.get('http://localhost:5000/search', { params })
+                    .then(response => {
+                    this.results = response.data.results;
+                    })
+                    .catch(error => {
+                    console.error(error);
+                    });
             },
             showDetails(index) {
                 this.selectedResult = index;
