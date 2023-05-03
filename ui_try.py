@@ -1,37 +1,38 @@
 import PySimpleGUI as sg
-sg.theme('DarkAmber')
+import json
 
+# Define the layout of the main window
+layout = [
+    [sg.Table(values=[['1', '2', '3'], ['a', 'b', 'c'], ['A', 'B', 'C']],
+              headings=['Col1', 'Col2', 'Col3'],
+              bind_return_key=True,  # Enable row selection on Enter key
+              key='-TABLE-')]
+]
 
-header_list = ['Function', 'Starting Address', 'Basic Blocks', 'Instructions', 'Cyclomatic Complexity', 'Jilb\'s Metric', 'ABC Metric', 'Halstead Estimated Length',
-				'Halstead Volume', 'Halstead Difficulty', 'Halstead Effort', 'Halstead Time', 'Halstead Bugs', 'Harris Metric', 'Oviedo Metric', 'Chepin Metric',
-                'Card & Glass Metric', 'Henry & Kafura Metric', 'Cocol Metric', 'Hybrid General Complexity']
-table_data = []
-import random
-i = 0
-while i < 2000:
-	row = []
-	j = 0
-	while j < len(header_list):
-		row.append(round(random.random(), 3))
-		j += 1
-	table_data.append(row)
-	i += 1
+# Create the main window
+window = sg.Window('Main Window', layout)
 
-window_col = [	[sg.Table(values=table_data, headings=header_list[1:], max_col_width=25, auto_size_columns=True, display_row_numbers=False, justification='center',
-				vertical_scroll_only = False, alternating_row_color='#626366', num_rows=min(len(table_data), 20))]	]
-layout = [	[sg.Col(window_col, vertical_alignment = 'top')],
-			[sg.Button('Close')]	]
-
-# Generated the gui window to display the table
-window = sg.Window('Function Metrics', layout, size = (800, 600), font='AndaleMono 16')
-
-# Event Loop to process "events" and get the "values" of the inputs
+# Event loop to handle events
 while True:
 	event, values = window.read()
-#	del values
-	# End the function if the windows is closed via the "x" button or selecting the "Close" button
-	if event == sg.WIN_CLOSED or event == 'Close':
+	if event == sg.WIN_CLOSED:
 		break
+	elif event == '-TABLE-':
+		selected_row = values['-TABLE-'][0]
+		if selected_row is not None:
+			# Create a new window to display the JSON data
+			elem = {'a':'b', 'dsfsdfdsfggfhytjhjhgjgjgjhgjhgjhg':'sdfsdfdsfsdfsdfsdfsdfsdfsdfsdd', 'esdfsfdsd':'sdfsdfsdf'}
+			json_layout = [
+				[sg.Multiline(json.dumps(elem), size=(50, 10), key='-JSON-')]
+			]
+			json_window = sg.Window('JSON Data', json_layout)
 
-# Terminate the window, which will cause the function to return and the program to end
+			# Event loop to handle events in the JSON window
+			while True:
+				json_event, json_values = json_window.read()
+				if json_event == sg.WIN_CLOSED or json_event == 'Close':
+					json_window.close()
+					break
+
+# Close the main window when the event loop is exited
 window.close()

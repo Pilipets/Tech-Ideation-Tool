@@ -11,21 +11,24 @@ openai.api_key = open(os.path.join('keys', 'open_ai.key')).read()
 MAX_RESULTS = 5
 
 
-def arxiv_sample():
+def arxiv_sample(query='quantum'):
 	print('arxiv_sample')
 	search = arxiv.Search(
-		query = "quantum",
+		query = query,
 		max_results = MAX_RESULTS,
 		sort_by = arxiv.SortCriterion.SubmittedDate
 	)
 
+	ret = []
 	for result in search.results():
-		print("Title:", result.title)
-		print("Published:", result.published)
-		print("Link:", result)
-		print("Summary:", result.summary)
-		print()
-	print()
+		ret.append({'title':result.title, 'published':result.published, 'link':result.links, 'summary':result.summary})
+	# 	print("Title:", result.title)
+	# 	print("Published:", result.published)
+	# 	print("Link:", result.links)
+	# 	print("Summary:", result.summary)
+	# 	print()
+	# print()
+	return ret
 
 
 def patents_view_sample():
