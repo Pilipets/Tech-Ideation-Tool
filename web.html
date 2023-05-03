@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ideation Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <style>
+    body {
+      background-color: #F0F0F0;
+      font-family: Helvetica, sans-serif;
+      color: #333333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    
+    .form-row label {
+      margin-right: 1rem;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="submit"] {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 3px;
+      font-size: 1rem;
+    }
+    
+    .form-row input[type="submit"] {
+      background-color: #4CAF50;
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+    
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    
+    .checkbox-row label {
+      margin-right: 1rem;
+    }
+    
+    .results-table {
+      width: 100%;
+      margin-top: 1rem;
+      border-collapse: collapse;
+    }
+    
+    .results-table th,
+    .results-table td {
+      padding: 0.5rem;
+      border: 1px solid #CCCCCC;
+      text-align: left;
+    }
+    
+    .results-table th {
+      background-color: #D6EAF8;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h1>Ideation Tool</h1>
+    <form @submit.prevent="search">
+      <div class="form-row">
+        <label for="query">Enter your query:</label>
+        <input type="text" id="query" v-model="query" placeholder="quantum">
+        <button type="submit">Search</button>
+      </div>
+      <div class="checkbox-row">
+        <label><input type="checkbox" v-model="sources.arxiv">Arxiv</label>
+        <label><input type="checkbox" v-model="sources.news">News</label>
+        <label><input type="checkbox" v-model="sources.google">Trends</label>
+        <label><input type="checkbox" v-model="sources.openai">OpenAI</label>
+        <label><input type="checkbox" v-model="sources.patents">Patents</label>
+      </div>
+    </form>
+    <table v-if="results.length" class="results-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Main info</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(result, index) in results" :key="index" @click="showDetails(index)">
+          <td>{{ result.type }}</td>
+          <td>{{ result.main_info }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-if="selectedResult !== null">
+      <h2>Details</h2>
+      <pre>{{ JSON.stringify(results[selectedResult], null, 4) }}</pre>
+    </div>

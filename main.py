@@ -14,17 +14,18 @@ sg.theme('DefaultNoMoreNagging')
 sg.set_options(background_color='#F0F0F0', text_color='#333333', element_background_color='#FFFFFF', element_text_color='#000000', scrollbar_color=None)
 
 results = []
-window_col = [ [sg.Table(key='-RESULTS-', values=[], headings=['Type', 'Main info'], auto_size_columns=False,
-                display_row_numbers=False, justification='left',
-                vertical_scroll_only = False,
-				alternating_row_color='#D6EAF8', col_widths=[1, 70], expand_x=True, expand_y=True)] ]
+window_col = sg.Table(
+    key='-RESULTS-', values=[], headings=['Type', 'Main info'], auto_size_columns=False,
+    display_row_numbers=False, justification='left', vertical_scroll_only = False,
+	alternating_row_color='#D6EAF8', col_widths=[1, 70], expand_x=True, expand_y=True,
+    bind_return_key=True)
 
 # Define the layout of the window
 layout = [
     [sg.Text("Enter your query:"), sg.Combo(key="-QUERY-", values=[], size=(30, 1), expand_x=True, default_value='quantum'), sg.Button("Search", size=(10, 1), key="-SEARCH-")],
     [sg.Checkbox("Arxiv", key="-ARXIV-", size=(15, 1)), sg.Checkbox("News", key="-NEWS-", size=(10, 1)), sg.Checkbox("Trends", key="-GOOGLE-", size=(15, 1)), sg.Checkbox("OpenAI", key="-OpenAI-", size=(15, 1)), sg.Checkbox("Patents", key="-PATENTS-", size=(10, 1))],
     [sg.Text("Results:")],
-    [sg.Col(window_col, vertical_alignment = 'top', expand_x=True, expand_y=True)],
+    [window_col],
 ]
 
 for elem in layout[1]:
@@ -37,7 +38,7 @@ window = sg.Window("Ideation Tool", layout, size=(1800, 800), resizable=False, f
 # Event loop
 while True:
     event, values = window.read()
-    logging.debug("event={}, values={}".format(event, values))
+    logging.info("event={}, values={}".format(event, values))
 
     if event == sg.WINDOW_CLOSED:
         break
@@ -83,11 +84,11 @@ while True:
         window["-RESULTS-"].update(values=output)
     
     elif event == '-RESULTS-':
-        selected_row = values['-TABLE-'][0]
+        selected_row = values['-RESULTS-'][0]
         if selected_row is not None:
             elem = results[selected_row]
 
-            json_layout = [[sg.Multiline(json.dumps(elem))]]
+            json_layout = [[sg.Multiline(json.dumps(elem, indent=4, sort_keys=True, default=str))]]
             popup = sg.Window('Row %d JSON' % selected_row, json_layout, finalize=True, non_blocking=True)
 
 
