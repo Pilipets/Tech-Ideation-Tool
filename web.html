@@ -80,7 +80,7 @@
         <form @submit.prevent="search">
           <div class="form-row">
             <label for="query">Enter your query:</label>
-            <input type="text" id="query" v-model="query" placeholder="quantum" style="width: 80%;">
+            <input type="text" id="query" v-model="query" placeholder="Trendy startup-idea" style="width: 80%;">
             <button type="submit">Search</button>
           </div>
           <div class="checkbox-row">
@@ -89,6 +89,7 @@
             <label><input type="checkbox" v-model="sources.patents">Patents</label>
             <label><input type="checkbox" v-model="sources.openai">OpenAI</label>
             <label><input type="checkbox" v-model="sources.ai_free">AI-free</label>
+            <label><input type="checkbox" v-model="sources.trends">Trends</label>
           </div>
         </form>
         <table v-if="results.length" class="results-table">
@@ -116,7 +117,8 @@
               news: false,
               patents: false,
               openai: false,
-              ai_free: false
+              ai_free: false,
+              trends: false
             },
             selectedResult: null,
             results: [],
@@ -131,6 +133,7 @@
                     patents: this.sources.patents,
                     openai: this.sources.openai,
                     ai_free: this.sources.ai_free,
+                    trends: this.sources.trends
                 };
 
                 // Make API request

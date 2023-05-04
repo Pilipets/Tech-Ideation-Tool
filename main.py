@@ -8,6 +8,31 @@ app = Flask(__name__)
 CORS(app)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
+
+def _query_append_results(results, fn, query, PORTION_SIZE, type, main_info_key):
+    assert not main_info_key or (main_info_key and PORTION_SIZE == 1), ("Invalid params passed" + locals())
+    try:
+        ret = fn(query)
+
+        for i in range(0, len(ret), PORTION_SIZE):
+            items = ret[i:i+PORTION_SIZE]
+
+            if len(items) == 1:
+                elem = items[0]
+                
+                if main_info_key:
+                    main_info = elem.pop(main_info_key)
+                    results.append({'type':type, 'main_info':main_info, 'details': elem})
+                else:
+                    results.append({'type':type, 'main_info':elem})
+
+            else:
+                results.append({'type':type, 'main_info':items})
+
+    except Exception as ex:
+        logging.warning('Error getting {}: {}'.format(fn.__name__, ex))
+
+
 @app.route('/search')
 def search():
     query = request.args.get('q')
@@ -16,70 +41,90 @@ def search():
     patents = request.args.get('patents')
     openai = request.args.get('openai')
     ai_free = request.args.get('ai_free')
+    trends = request.args.get('trends')
 
     results_num = 100
-
-    if query is None:
-        query = 'no code development'
+    material_common_params = {'PORTION_SIZE':1, 'query':query, 'main_info_key':'title'}
+    suggestion_common_params = {'PORTION_SIZE':10, 'query':query, 'main_info_key':None}
 
     results = []
+
+    if trends == 'true':
+        common_params = suggestion_common_params
+        common_params['type'] = 'GTrends'
+        
+        _query_append_results(
+            results,
+            fn = text_suggestions.get_google_trends_suggestions,
+            **common_params
+        )
+        _query_append_results(
+            results,
+            fn = text_suggestions.get_google_trends_related_queries,
+            **common_params
+        )
+        _query_append_results(
+            results,
+            fn = text_suggestions.get_google_trends_related_topics,
+            **common_params
+        )
+
     if arxiv == 'true':
-        try:
-            ret = material_suggestions.arxiv_sample(query)
+        _query_append_results(
+            results,
+            fn = material_suggestions.arxiv_sample,
+            type='ARXIV',
+            **material_common_params
+        )
 
-            for r in ret:
-                main_info = r.pop('title')
-                results.append({'type':'ARXIV', 'main_info':main_info, 'details':r})
-        except Exception as ex:
-            logging.warning('Error getting arxiv: {}'.format(ex))
-
-    if arxiv == 'true':
-        try:
-            ret = material_suggestions.arxiv_explorer_sample(query)
-
-            for r in ret:
-                main_info = r.pop('title')
-                results.append({'type':'ARXIV', 'main_info':main_info, 'details':r})
-        except Exception as ex:
-            logging.warning('Error getting arxiv_explorer: {}'.format(ex))
+        _query_append_results(
+            results,
+            fn = material_suggestions.arxiv_explorer_sample,
+            type='ARXIV',
+            **material_common_params
+        )
 
     if news == 'true':
-        try:
-            ret = material_suggestions.google_news_sample(query)
-
-            for r in ret:
-                main_info = r.pop('title')
-                results.append({'type':'NEWS', 'main_info':main_info, 'details':r})
-        except Exception as ex:
-            logging.warning('Error getting google_news: {}'.format(ex))
+        _query_append_results(
+            results,
+            fn = material_suggestions.google_news_sample,
+            type='NEWS',
+            **material_common_params
+        )
 
     if patents == 'true':
-        try:
-            ret = material_suggestions.patents_view_sample(query)
+        _query_append_results(
+            results,
+            fn = material_suggestions.patents_view_sample,
+            type='PATENTS',
+            **material_common_params
+        )
 
-            for r in ret:
-                main_info = r.pop('title')
-                results.append({'type':'PATENTS', 'main_info':main_info, 'details':r})
-        except Exception as ex:
-            logging.warning('Error getting google_news: {}'.format(ex))
+    material_common_params = material_common_params
+    material_common_params['main_info_key'] = None
 
     if openai == 'true':
-        try:
-            ret = material_suggestions.chatgpt_sample(query)
+        _query_append_results(
+            results,
+            fn = material_suggestions.chatgpt_sample,
+            type='OpenAI',
+            **material_common_params
+        )
 
-            for r in ret:
-                results.append({'type':'OpenAI', 'main_info':r})
-        except Exception as ex:
-            logging.warning('Error getting chatgpt: {}'.format(ex))
+        _query_append_results(
+            results,
+            fn = text_suggestions.get_chatgpt_recommendations,
+            type='OpenAI',
+            **suggestion_common_params
+        )
 
     if ai_free == 'true':
-        try:
-            ret = material_suggestions.hugging_face_sample(query)
-
-            for r in ret:
-                results.append({'type':'AI-free', 'main_info':r})
-        except Exception as ex:
-            logging.warning('Error getting hugging_face: {}'.format(ex))
+        _query_append_results(
+            results,
+            fn = material_suggestions.hugging_face_sample,
+            type='AI-free',
+            **material_common_params
+        )
 
     return jsonify({"results": results})
 

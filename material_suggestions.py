@@ -78,27 +78,20 @@ def chatgpt_sample(query='trying something unusual'):
 	print('chatgpt_sample')
 
 	def generate_ideas(prompt):
+		prompts = [prompt for _ in range(MAX_RESULTS)]
 		response = openai.Completion.create(
-		engine="text-davinci-003",
-		prompt=prompt,
-		max_tokens=500 * MAX_RESULTS,
-		stop=None,
-		temperature=0.5,
+			engine="text-davinci-003",
+			prompt=prompts,
+			max_tokens=500,
+			stop=None,
+			temperature=0.5,
 		)
 
 		ideas = [choice.text.strip() for choice in response.choices]
-
-		assert len(ideas) == 1, ideas
-		ideas = ideas[0].split('\n')
-		ideas = [idea[3:] for idea in ideas if idea.strip()]
 		return ideas
 
-	prompt = "Generate %d ideas or facts or insights related to '%s'" % (MAX_RESULTS, query)
+	prompt = "Generate idea or fact or insight related to '%s' that can be useful for tech-startup" % (query)
 	ret = generate_ideas(prompt)
-	
-	prompt = "Generate %d phrases related to '%s'" % (MAX_RESULTS, query)
-	ret += generate_ideas(prompt)
-
 	return ret
 
 
@@ -130,12 +123,12 @@ def google_news_sample(query = 'distributed databases'):
 
 
 def main():
-	arxiv_sample()
-	arxiv_explorer_sample()
-	patents_view_sample()
-	chatgpt_sample()
-	hugging_face_sample()
-	google_news_sample()
+	print(arxiv_sample())
+	print(arxiv_explorer_sample())
+	print(patents_view_sample())
+	print(chatgpt_sample())
+	print(hugging_face_sample())
+	print(google_news_sample())
 
 
 if __name__ == '__main__':
