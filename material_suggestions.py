@@ -21,19 +21,12 @@ def arxiv_sample(query='quantum'):
 
 	ret = []
 	for result in search.results():
-		ret.append({'title':result.title, 'published':result.published, 'link':result.links, 'summary':result.summary})
-	# 	print("Title:", result.title)
-	# 	print("Published:", result.published)
-	# 	print("Link:", result.links)
-	# 	print("Summary:", result.summary)
-	# 	print()
-	# print()
+		ret.append({'title':result.title, 'published':result.published, 'link':result.entry_id, 'summary':result.summary})
 	return ret
 
 
-def patents_view_sample():
+def patents_view_sample(query='electric car'):
 	print('patents_view_sample')
-	query = "electric car"
 	url = "https://api.patentsview.org/patents/query"
 
 	# Set the parameters for the API request
@@ -50,20 +43,21 @@ def patents_view_sample():
 		data = response.json()
 		results = data.get('patents', [])
 
+		ret = []
 		for patent in results:
-			print('Title:', patent.get('patent_title', 'Not Found'))
-			print('Date:', patent.get('patent_date', 'Not Found'))
-			print('Number:', patent.get('patent_number', 'Not Found'))
-			print('Summary:', patent.get('patent_abstract', 'Not Found'))
-			print()
+			ret.append({
+				'title':patent.get('patent_title', 'Not Found'),
+				'date':patent.get('patent_date', 'Not Found'),
+				'number':patent.get('patent_number', 'Not Found'),
+				'summary':patent.get('patent_abstract', 'Not Found')
+			})
+		return ret
 	else:
-		print(f"Error fetching data from PatentsView API: {response.status_code}")
-	print()
+		raise f"Error fetching data from PatentsView API: {response.status_code}"
 
 
-def arxiv_explorer_sample():
+def arxiv_explorer_sample(query = 'trying something unusual'):
 	print('arxiv_explorer_sample')
-	query = 'trying something unusual'
 	url = 'https://us-west1-semanticxplorer.cloudfunctions.net/semantic-xplorer-db'
 
 	resp = requests.get(url, params={'query': query})
@@ -77,70 +71,62 @@ def arxiv_explorer_sample():
 	elems.sort(key=lambda el: el['date'], reverse=True)
 
 	elems = elems[:MAX_RESULTS]
-	for el in elems:
-		print(el)
-	print()
+	return elems
 
 
-def chatgpt_sample():
+def chatgpt_sample(query='trying something unusual'):
 	print('chatgpt_sample')
-	query = 'trying something unusual'
+
 	def generate_ideas(prompt):
 		response = openai.Completion.create(
 		engine="text-davinci-003",
 		prompt=prompt,
-		max_tokens=200 * MAX_RESULTS,
+		max_tokens=500 * MAX_RESULTS,
 		stop=None,
 		temperature=0.5,
 		)
 
 		ideas = [choice.text.strip() for choice in response.choices]
+
+		assert len(ideas) == 1, ideas
+		ideas = ideas[0].split('\n')
+		ideas = [idea[3:] for idea in ideas if idea.strip()]
 		return ideas
 
 	prompt = "Generate %d ideas or facts or insights related to '%s'" % (MAX_RESULTS, query)
-	ideas = generate_ideas(prompt)
-
-	assert len(ideas) == 1, ideas
-	ideas = ideas[0].split('\n\n')
-	print(ideas)
-	print()
+	ret = generate_ideas(prompt)
 	
 	prompt = "Generate %d phrases related to '%s'" % (MAX_RESULTS, query)
-	ideas = generate_ideas(prompt)
+	ret += generate_ideas(prompt)
 
-	assert len(ideas) == 1, ideas
-	ideas = ideas[0].split('\n\n')
-	print(ideas)
-	print()
+	return ret
 
 
-def hugging_face_sample():
+def hugging_face_sample(query = 'climate change'):
 	print('hugging_face_sample')
-	query = 'climate change'
 
 	generator = pipeline('text-generation', model = 'gpt2')
 	results = generator("New idea/fact/insight related to the %s is" % query, max_length = 200, num_return_sequences=MAX_RESULTS)
 
 	ideas = [r['generated_text'].replace('\n\n', '\n') for r in results]
-	for idea in ideas:
-		print('Idea:', idea)
-		print()
-	print()
+	return ideas
 
 
-def google_news_sample():
-	query = 'distributed databases'
+def google_news_sample(query = 'distributed databases'):
+	print('google_news_sample')
 	google_news = GNews()
 
 	google_news.max_results = MAX_RESULTS
 
 	news = google_news.get_news(query)
+	ret = []
+
 	for new in news:
-		print('Title:', new['title'])
-		print('Date:', new['published date'])
-		print('Description:', new['description'])
-		print('Url:', new['url'])
-		print()
+		ret.append({
+			'title':new['title'], 'date':new['published date'],
+			'description':new['description'], 'url':new['url']}
+		)
+	return ret
 
 
 def main():

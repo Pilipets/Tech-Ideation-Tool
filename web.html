@@ -75,7 +75,7 @@
         <h1 style="text-align: center;">Ideation Tool</h1>
         <div v-if="selectedResult !== null">
           <h2>Details</h2>
-          <pre>{{ JSON.stringify(results[selectedResult], null, 4) }}</pre>
+          <pre style="max-width: 80vw; overflow-x: auto;">{{ JSON.stringify(results[selectedResult], null, 4) }}</pre>
         </div>
         <form @submit.prevent="search">
           <div class="form-row">
@@ -86,6 +86,9 @@
           <div class="checkbox-row">
             <label><input type="checkbox" v-model="sources.arxiv">Arxiv</label>
             <label><input type="checkbox" v-model="sources.news">News</label>
+            <label><input type="checkbox" v-model="sources.patents">Patents</label>
+            <label><input type="checkbox" v-model="sources.openai">OpenAI</label>
+            <label><input type="checkbox" v-model="sources.ai_free">AI-free</label>
           </div>
         </form>
         <table v-if="results.length" class="results-table">
@@ -111,28 +114,12 @@
             sources: {
               arxiv: false,
               news: false,
+              patents: false,
+              openai: false,
+              ai_free: false
             },
             selectedResult: null,
-            results: [
-            //   {
-            //     type: 'arxiv',
-            //     main_info: 'Title of arxiv paper 1',
-            //     details: {
-            //       author: 'John Doe',
-            //       abstract: 'This is an abstract of arxiv paper 1.',
-            //       link: 'https://arxiv.org/abs/2101.00001',
-            //     },
-            //   },
-            //   {
-            //     type: 'news',
-            //     main_info: 'Title of news article 1',
-            //     details: {
-            //       author: 'Jane Smith',
-            //       description: 'This is a description of news article 1.',
-            //       url: 'https://example.com/news/article1',
-            //     },
-            //   },
-            ],
+            results: [],
           },
           methods: {
             search() {
@@ -141,6 +128,9 @@
                     q: this.query,
                     arxiv: this.sources.arxiv,
                     news: this.sources.news,
+                    patents: this.sources.patents,
+                    openai: this.sources.openai,
+                    ai_free: this.sources.ai_free,
                 };
 
                 // Make API request
