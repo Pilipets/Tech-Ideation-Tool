@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_caching import Cache
 
 import material_suggestions, text_suggestions
 import logging
 
 app = Flask(__name__)
+cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_DEFAULT_TIMEOUT': 60*5})
 CORS(app)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -34,6 +36,7 @@ def _query_append_results(results, fn, query, PORTION_SIZE, type, main_info_key)
 
 
 @app.route('/search')
+@cache.cached(timeout=60*5, query_string=True)
 def search():
     query = request.args.get('q')
     arxiv = request.args.get('arxiv')
@@ -50,7 +53,7 @@ def search():
     results = []
 
     if trends == 'true':
-        common_params = suggestion_common_params
+        common_params = suggestion_common_params.copy()
         common_params['type'] = 'GTrends'
         
         _query_append_results(

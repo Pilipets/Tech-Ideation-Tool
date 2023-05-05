@@ -140,6 +140,7 @@
                 axios.get('http://localhost:5000/search', { params })
                     .then(response => {
                     this.results = response.data.results;
+                    this.results.sort(() => Math.random() - 0.5);
                     })
                     .catch(error => {
                     console.error(error);
