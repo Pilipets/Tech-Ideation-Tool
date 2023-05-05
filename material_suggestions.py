@@ -8,10 +8,10 @@ import os
 
 
 openai.api_key = open(os.path.join('keys', 'open_ai.key')).read()
-MAX_RESULTS = 5
+MAX_RESULTS = 10
 
 
-def arxiv_sample(query='quantum'):
+def arxiv_sample(query):
 	print('arxiv_sample')
 	search = arxiv.Search(
 		query = query,
@@ -25,7 +25,7 @@ def arxiv_sample(query='quantum'):
 	return ret
 
 
-def patents_view_sample(query='electric car'):
+def patents_view_sample(query):
 	print('patents_view_sample')
 	url = "https://api.patentsview.org/patents/query"
 
@@ -56,7 +56,7 @@ def patents_view_sample(query='electric car'):
 		raise f"Error fetching data from PatentsView API: {response.status_code}"
 
 
-def arxiv_explorer_sample(query = 'trying something unusual'):
+def arxiv_explorer_sample(query):
 	print('arxiv_explorer_sample')
 	url = 'https://us-west1-semanticxplorer.cloudfunctions.net/semantic-xplorer-db'
 
@@ -74,7 +74,7 @@ def arxiv_explorer_sample(query = 'trying something unusual'):
 	return elems
 
 
-def chatgpt_sample(query='trying something unusual'):
+def chatgpt_sample(query):
 	print('chatgpt_sample')
 
 	def generate_ideas(prompt):
@@ -95,7 +95,7 @@ def chatgpt_sample(query='trying something unusual'):
 	return ret
 
 
-def hugging_face_sample(query = 'climate change'):
+def hugging_face_sample(query):
 	print('hugging_face_sample')
 
 	generator = pipeline('text-generation', model = 'gpt2')
@@ -105,7 +105,7 @@ def hugging_face_sample(query = 'climate change'):
 	return ideas
 
 
-def google_news_sample(query = 'distributed databases'):
+def google_news_sample(query):
 	print('google_news_sample')
 	google_news = GNews()
 
@@ -123,12 +123,12 @@ def google_news_sample(query = 'distributed databases'):
 
 
 def main():
-	print(arxiv_sample())
-	print(arxiv_explorer_sample())
-	print(patents_view_sample())
-	print(chatgpt_sample())
-	print(hugging_face_sample())
-	print(google_news_sample())
+	print(arxiv_sample('quantum'))
+	print(arxiv_explorer_sample('trying something unusual'))
+	print(patents_view_sample('electric car'))
+	print(chatgpt_sample('seamless processing'))
+	print(hugging_face_sample('climate change'))
+	print(google_news_sample('distributed databases'))
 
 
 if __name__ == '__main__':

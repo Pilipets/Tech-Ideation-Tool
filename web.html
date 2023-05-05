@@ -99,6 +99,8 @@
             <label><input type="checkbox" v-model="sources.openai">OpenAI</label>
             <label><input type="checkbox" v-model="sources.ai_free">AI-free</label>
             <label><input type="checkbox" v-model="sources.trends">Trends</label>
+            <label for="num">Number of results per type:</label>
+            <input type="number" id="num" v-model.number="num" min="5" max="150" step="10" style="width: 60px;">
           </div>
         </form>
         <div class="results-container">
@@ -133,6 +135,7 @@
             },
             selectedResult: null,
             results: [],
+            num: 15
           },
           methods: {
             search() {
@@ -144,7 +147,8 @@
                     patents: this.sources.patents,
                     openai: this.sources.openai,
                     ai_free: this.sources.ai_free,
-                    trends: this.sources.trends
+                    trends: this.sources.trends,
+                    num: this.num
                 };
 
                 // Make API request
@@ -162,5 +166,5 @@
             },
           },
         });
-      </script>      
+      </script>
 </body>

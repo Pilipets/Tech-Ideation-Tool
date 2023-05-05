@@ -45,8 +45,10 @@ def search():
     openai = request.args.get('openai')
     ai_free = request.args.get('ai_free')
     trends = request.args.get('trends')
+    num = request.args.get('num', type=int)
 
-    results_num = 100
+    material_suggestions.MAX_RESULTS = text_suggestions.MAX_RESULTS = num
+
     material_common_params = {'PORTION_SIZE':1, 'query':query, 'main_info_key':'title'}
     suggestion_common_params = {'PORTION_SIZE':10, 'query':query, 'main_info_key':None}
 
