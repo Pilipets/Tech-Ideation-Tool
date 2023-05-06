@@ -111,14 +111,14 @@ def search():
     if openai == 'true':
         _query_append_results(
             results,
-            fn = material_suggestions.chatgpt_sample,
+            fn = text_suggestions.get_chatgpt_ideas,
             type='OpenAI',
             **material_common_params
         )
 
         _query_append_results(
             results,
-            fn = text_suggestions.get_chatgpt_recommendations,
+            fn = text_suggestions.get_chatgpt_phrases,
             type='OpenAI',
             **suggestion_common_params
         )
@@ -126,7 +126,7 @@ def search():
     if ai_free == 'true':
         _query_append_results(
             results,
-            fn = material_suggestions.hugging_face_sample,
+            fn = text_suggestions.get_hugging_face_inference,
             type='AI-free',
             **material_common_params
         )

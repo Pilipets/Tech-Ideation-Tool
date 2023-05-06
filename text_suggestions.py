@@ -3,11 +3,12 @@ from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 import nltk
 import openai
+from transformers import pipeline
 import os
 
 
 openai.api_key = open(os.path.join('keys', 'open_ai.key')).read()
-MAX_RESULTS = 5
+MAX_RESULTS = 10
 nltk.download('wordnet')
 nltk.download('punkt')
 pytrend = TrendReq()
@@ -85,8 +86,8 @@ def get_synsets_phrase_related_phrases(query):
 	return list(related)
 
 
-def get_chatgpt_recommendations(query):
-	print('chatgpt_sample')
+def get_chatgpt_phrases(query):
+	print('chatgpt_phrases_sample')
 
 	def generate_ideas(prompt):
 		response = openai.Completion.create(
@@ -110,6 +111,37 @@ def get_chatgpt_recommendations(query):
 	return ideas
 
 
+def get_chatgpt_ideas(query):
+	print('chatgpt_ideas_sample')
+
+	def generate_ideas(prompt):
+		prompts = [prompt for _ in range(MAX_RESULTS)]
+		response = openai.Completion.create(
+			engine="text-davinci-003",
+			prompt=prompts,
+			max_tokens=500,
+			stop=None,
+			temperature=0.5,
+		)
+
+		ideas = [choice.text.strip() for choice in response.choices]
+		return ideas
+
+	prompt = "Generate idea or fact or insight related to '%s' that can be useful for tech-startup" % (query)
+	ret = generate_ideas(prompt)
+	return ret
+
+
+def get_hugging_face_inference(query):
+	print('hugging_face_inference_sample')
+
+	generator = pipeline('text-generation', model = 'gpt2')
+	results = generator("New idea/fact/insight related to the %s is" % query, max_length = 200, num_return_sequences=MAX_RESULTS)
+
+	ideas = [r['generated_text'].replace('\n\n', '\n') for r in results]
+	return ideas
+
+
 def main():
     print(get_google_trends_related_queries('coffee'))
     print(get_google_trends_related_topics('coffee'))
@@ -117,7 +149,9 @@ def main():
     print('synsets_word_related_phrases_sample')
     print(get_synsets_word_related_phrases('whatever'))
     print(get_synsets_phrase_related_phrases('I want this cup of coffee for the morning'))
-    print(get_chatgpt_recommendations('cloud computing'))
+    print(get_chatgpt_phrases('cloud computing'))
+    print(get_chatgpt_ideas('seamless processing'))
+    print(get_hugging_face_inference('climate change'))
 
 
 if __name__ == '__main__':

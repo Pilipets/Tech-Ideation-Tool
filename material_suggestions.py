@@ -1,13 +1,9 @@
 import arxiv
 import requests
 from dateutil.parser import parse
-import openai
-from transformers import pipeline
 from gnews import GNews
-import os
 
 
-openai.api_key = open(os.path.join('keys', 'open_ai.key')).read()
 MAX_RESULTS = 10
 
 
@@ -74,37 +70,6 @@ def arxiv_explorer_sample(query):
 	return elems
 
 
-def chatgpt_sample(query):
-	print('chatgpt_sample')
-
-	def generate_ideas(prompt):
-		prompts = [prompt for _ in range(MAX_RESULTS)]
-		response = openai.Completion.create(
-			engine="text-davinci-003",
-			prompt=prompts,
-			max_tokens=500,
-			stop=None,
-			temperature=0.5,
-		)
-
-		ideas = [choice.text.strip() for choice in response.choices]
-		return ideas
-
-	prompt = "Generate idea or fact or insight related to '%s' that can be useful for tech-startup" % (query)
-	ret = generate_ideas(prompt)
-	return ret
-
-
-def hugging_face_sample(query):
-	print('hugging_face_sample')
-
-	generator = pipeline('text-generation', model = 'gpt2')
-	results = generator("New idea/fact/insight related to the %s is" % query, max_length = 200, num_return_sequences=MAX_RESULTS)
-
-	ideas = [r['generated_text'].replace('\n\n', '\n') for r in results]
-	return ideas
-
-
 def google_news_sample(query):
 	print('google_news_sample')
 	google_news = GNews()
@@ -126,8 +91,6 @@ def main():
 	print(arxiv_sample('quantum'))
 	print(arxiv_explorer_sample('trying something unusual'))
 	print(patents_view_sample('electric car'))
-	print(chatgpt_sample('seamless processing'))
-	print(hugging_face_sample('climate change'))
 	print(google_news_sample('distributed databases'))
 
 
