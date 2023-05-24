@@ -136,9 +136,10 @@ def get_hugging_face_inference(query):
 	print('hugging_face_inference_sample')
 
 	generator = pipeline('text-generation', model = 'gpt2')
-	results = generator("New idea/fact/insight related to the %s is" % query, max_length = 200, num_return_sequences=MAX_RESULTS)
+	prompt = "New idea/fact/insight related to the %s is " % query
+	results = generator(prompt, max_length = 200, num_return_sequences=MAX_RESULTS)
 
-	ideas = [r['generated_text'].replace('\n\n', '\n') for r in results]
+	ideas = [r['generated_text'][len(prompt):].replace('\n\n', '\n') for r in results]
 	return ideas
 
 

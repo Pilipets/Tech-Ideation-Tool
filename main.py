@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from flask_caching import Cache
 
@@ -132,6 +132,15 @@ def search():
         )
 
     return jsonify({"results": results})
+
+
+main_html = open('web.html').read()
+@app.route('/')
+def home():
+    response = make_response(main_html)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
 
 if __name__ == '__main__':
     app.run()
